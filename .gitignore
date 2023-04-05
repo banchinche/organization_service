@@ -1,4 +1,7 @@
 .idea
 .DS_Store
 .python-version
+.env
+config/local.config.toml
+config/production.config.toml
 **pycache**
