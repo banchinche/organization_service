@@ -1,0 +1,76 @@
+version: "3.9"
+
+services:
+  api:
+    profiles: [ "api" ]
+    container_name: organization-service.api
+    build:
+      context: .
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - organization_service.postgres.network
+    volumes:
+      - ./config:/app/config:ro
+    environment:
+      - CONFIG_PATH=${CONFIG_PATH:-./config/prod_config.toml}
+    command: [ "python", "-m", "src" ]
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsSL http://localhost:5000/healthcheck/" ]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 10s
+
+  postgres_migration:
+    profiles: [ "migration" ]
+    container_name: organization_service.postgres_migration
+    build:
+      context: .
+    restart: on-failure
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - organization_service.postgres.network
+    volumes:
+      - ./config:/app/config:ro
+    # TODO: add dependencies on alembic configuration and migration files
+    #      - ./alembic.ini:/app/alembic.ini:ro
+    #      - ./src/infrastructure/db/migrations:/app/src/infrastructure/db/migrations:ro
+    environment:
+      - CONFIG_PATH=${CONFIG_PATH:-./config/prod_config.toml}
+    command: [ "python", "-m", "alembic", "upgrade", "head" ]
+
+  postgres:
+    profiles: [ "api", "migration" ]
+    container_name: organization_service.postgres
+    image: "postgres:15-alpine"
+    hostname: organization_service.postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    networks:
+      - organization_service.postgres.network
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - organization_service.postgres.data:/var/lib/postgresql/users:rw
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 10s
+      timeout: 60s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  organization_service.postgres.data: { }
+
+networks:
+  organization_service.postgres.network: { }

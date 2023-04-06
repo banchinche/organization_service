@@ -1,0 +1,10 @@
+[api]
+debug = true
+
+[db]
+host = "organization_service.postgres"
+port = 5432
+database = "organization_service"
+user = "admin"
+password = "admin"
+echo = true
