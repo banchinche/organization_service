@@ -13,8 +13,8 @@ class Post(CreatedUpdatedAtMixin):
     __mapper_args__ = {"eager_defaults": True}
 
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid7, server_default=sa.func.generate_uuid7())
-    text: str
-    image: str | None
+    text: Mapped[str]
+    image: Mapped[str | None]
 
     # relations
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
