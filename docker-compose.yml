@@ -3,7 +3,7 @@ version: "3.9"
 services:
   api:
     profiles: [ "api" ]
-    container_name: organization-service.api
+    container_name: api
     build:
       context: .
     restart: unless-stopped
@@ -26,34 +26,13 @@ services:
       retries: 5
       start_period: 10s
 
-  postgres_migration:
-    profiles: [ "migration" ]
-    container_name: organization_service.postgres_migration
-    build:
-      context: .
-    restart: on-failure
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - organization_service.postgres.network
-    volumes:
-      - ./config:/app/config:ro
-    # TODO: add dependencies on alembic configuration and migration files
-    #      - ./alembic.ini:/app/alembic.ini:ro
-    #      - ./src/infrastructure/db/migrations:/app/src/infrastructure/db/migrations:ro
-    environment:
-      - CONFIG_PATH=${CONFIG_PATH:-./config/prod_config.toml}
-    command: [ "python", "-m", "alembic", "upgrade", "head" ]
-
   postgres:
-    profiles: [ "api", "migration" ]
-    container_name: organization_service.postgres
+    profiles: [ "api" ]
+    container_name: postgres
     image: "postgres:15-alpine"
-    hostname: organization_service.postgres
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5600:5432"
     networks:
       - organization_service.postgres.network
     environment:

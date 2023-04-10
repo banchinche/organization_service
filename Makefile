@@ -26,4 +26,5 @@ down:
 
 .PHONY: migrate
 migrate:
-	docker-compose --profile migration up --build
+	# verify that database is up
+	$(PYTHON) alembic upgrade head

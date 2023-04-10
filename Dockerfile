@@ -37,6 +37,6 @@ RUN apt-get update && apt-get install -y curl
 
 WORKDIR app/
 
-COPY ./src /app/src
+COPY ./src /app/src/
 
 CMD [ "python", "-m", "src" ]
