@@ -18,7 +18,7 @@ class User(CreatedUpdatedAtMixin):
     email: Mapped[str]
 
     # relations
-    organization_id: Mapped[UUID] = mapped_column(ForeignKey("organizations.id"), nullable=True)
+    organization_id: Mapped[UUID] = mapped_column(ForeignKey("organizations.id", use_alter=True), nullable=True)
     organization: Mapped["Organization"] = relationship(
         "Organization",
         foreign_keys=organization_id,

@@ -16,7 +16,7 @@ class Organization(CreatedUpdatedAtMixin):
     name: Mapped[str] = mapped_column(unique=True)
 
     # relations
-    founder_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    founder_id: Mapped[UUID] = mapped_column(ForeignKey("users.id", use_alter=True))
     founder: Mapped["User"] = relationship(
         "User",
         back_populates="owned_organization",

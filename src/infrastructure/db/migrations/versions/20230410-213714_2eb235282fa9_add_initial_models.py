@@ -1,8 +1,8 @@
 """Add initial models
 
-Revision ID: 4d0d79eadbda
+Revision ID: 2eb235282fa9
 Revises: 73b1aef2f7d3
-Create Date: 2023-04-10 18:57:46.387125
+Create Date: 2023-04-10 21:37:14.511308
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '4d0d79eadbda'
+revision = '2eb235282fa9'
 down_revision = '73b1aef2f7d3'
 branch_labels = None
 depends_on = None
@@ -21,8 +21,10 @@ def upgrade() -> None:
     op.create_table('organizations',
     sa.Column('id', sa.Uuid(), server_default=sa.text('generate_uuid7()'), nullable=False),
     sa.Column('name', sa.String(), nullable=False),
+    sa.Column('founder_id', sa.Uuid(), nullable=False),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['founder_id'], ['users.id'], name=op.f('fk_organizations_founder_id_users'), use_alter=True),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_organizations')),
     sa.UniqueConstraint('name', name=op.f('uq_organizations_name'))
     )
@@ -39,9 +41,11 @@ def upgrade() -> None:
     sa.Column('username', sa.String(), nullable=False),
     sa.Column('password', sa.String(), nullable=False),
     sa.Column('email', sa.String(), nullable=False),
+    sa.Column('organization_id', sa.Uuid(), nullable=True),
     sa.Column('role_id', sa.Uuid(), nullable=True),
     sa.Column('created_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
     sa.Column('updated_at', sa.DateTime(), server_default=sa.text('now()'), nullable=False),
+    sa.ForeignKeyConstraint(['organization_id'], ['organizations.id'], name=op.f('fk_users_organization_id_organizations'), use_alter=True),
     sa.ForeignKeyConstraint(['role_id'], ['roles.id'], name=op.f('fk_users_role_id_roles')),
     sa.PrimaryKeyConstraint('id', name=op.f('pk_users')),
     sa.UniqueConstraint('username', name=op.f('uq_users_username'))

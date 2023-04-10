@@ -32,7 +32,7 @@ services:
     image: "postgres:15-alpine"
     restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5600:5432"
     networks:
       - organization_service.postgres.network
     environment:
